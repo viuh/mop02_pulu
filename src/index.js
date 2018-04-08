@@ -1,5 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import axios from 'axios'
+
 import Person from './components/Person'
 import SearchForm from './components/SearchForm'
 import Header from './components/Header'
@@ -9,11 +11,7 @@ class App extends React.Component {
     constructor(props) {
       super(props)
       this.state = {
-          persons: 
-          [
-            { name: 'Arto Hellas',
-              phone: '123-35234' }
-          ]   ,
+          persons: []   ,
           newName: '',
           newPhone: '',
           filter: '',
@@ -22,6 +20,18 @@ class App extends React.Component {
 
     }
   
+
+    componentDidMount() {
+      console.log('will mount')
+      axios
+        .get('http://localhost:3001/persons')
+        .then(response => {
+          console.log('data got')
+          this.setState({ persons: response.data })
+        })
+    }
+
+
     addPerson = (event) => {
       event.preventDefault()
       
