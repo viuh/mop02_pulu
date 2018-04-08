@@ -22,11 +22,11 @@ class App extends React.Component {
   
 
     componentDidMount() {
-      console.log('will mount')
+      //console.log('will mount')
       axios
         .get('http://localhost:3001/persons')
         .then(response => {
-          console.log('data got')
+          //console.log('data got')
           this.setState({ persons: response.data })
         })
     }
@@ -36,7 +36,7 @@ class App extends React.Component {
       event.preventDefault()
       
       let newperson = {name: this.state.newName,
-        phone: this.state.newPhone}
+        number: this.state.newPhone}
       
       let temp = this.state.persons
     
@@ -87,7 +87,7 @@ class App extends React.Component {
       
       return (
         list.map(person =>
-        <Person key={person.name} name={person.name} phone={person.phone}/>
+        <Person key={person.name} name={person.name} phone={person.number}/>
         )
       ) 
     }
