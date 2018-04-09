@@ -32,6 +32,7 @@ class App extends React.Component {
     }
 
 
+
     addPerson = (event) => {
       event.preventDefault()
       
@@ -45,6 +46,12 @@ class App extends React.Component {
       if (foundList.length===0) {
         temp.push(newperson)
         this.setState({persons: temp, newName:'', newPhone:''})
+
+        axios.post('http://localhost:3001/persons', newperson)
+        .then(response => {
+          console.log(response)
+        })
+
       } else {
         alert("Name exists already!")
       }
