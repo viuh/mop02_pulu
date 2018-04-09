@@ -5,6 +5,7 @@ import axios from 'axios'
 import Person from './components/Person'
 import SearchForm from './components/SearchForm'
 import Header from './components/Header'
+import personService from './services/persons'
 
 
 class App extends React.Component {
@@ -23,12 +24,16 @@ class App extends React.Component {
 
     componentDidMount() {
       //console.log('will mount')
-      axios
+      /*axios
         .get('http://localhost:3001/persons')
         .then(response => {
           //console.log('data got')
           this.setState({ persons: response.data })
-        })
+        })*/
+      personService.getAll()
+      .then(response=> {
+        this.setState({persons: response.data})
+      })
     }
 
 
@@ -45,12 +50,18 @@ class App extends React.Component {
     
       if (foundList.length===0) {
         temp.push(newperson)
-        this.setState({persons: temp, newName:'', newPhone:''})
+        //this.setState({persons: temp, newName:'', newPhone:''})
 
-        axios.post('http://localhost:3001/persons', newperson)
-        .then(response => {
-          console.log(response)
-        })
+        personService
+          .create(newperson)
+          .then(response=> {
+            this.setState({persons: temp, newName:'', newPhone:''})  
+          })
+
+//        axios.post('http://localhost:3001/persons', newperson)
+//        .then(response => {
+//          console.log(response)
+//        })
 
       } else {
         alert("Name exists already!")
