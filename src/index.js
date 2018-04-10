@@ -8,7 +8,22 @@ import AddForm from './components/AddForm'
 
 import Header from './components/Header'
 import personService from './services/persons'
+import Notification from './components/Notification'
+import './index.css'
 
+
+
+const Info = ({ message  }) => {
+  //console.log("Info for ", message)
+  if (message === null && message !== "ERR") {
+    return null
+  }
+  return (
+    <div className="info">
+      {message}
+    </div>
+  )
+}
 
 
 class App extends React.Component {
@@ -19,6 +34,8 @@ class App extends React.Component {
           newName: '',
           newPhone: '',
           filter: '',
+          error: null,
+          info: null,
         } 
       ;
 
@@ -54,9 +71,15 @@ class App extends React.Component {
             this.setState ( {
               persons: this.state.persons.concat(response.data),
               newName:'',
-              newPhone:''
+              newPhone:'',
+              info: `Henkilö '${this.state.newName}' lisätty.`
             })
+            setTimeout(() => {
+              this.setState({info: null})
+            }, 5000)
+    
           })
+      
       } else {
         if (window.confirm(this.state.newName+" on jo luettelossa, korvataanko vanha numero uudella?")) {
 
@@ -74,6 +97,13 @@ class App extends React.Component {
                 newPhone:''
               })
             })
+            this.setState ({
+              info: `Henkilön '${this.state.newName}' numero päivitetty.`
+          })
+          setTimeout(() => {
+            this.setState({info: null})
+          }, 5000)
+    
         }
       }
     }
@@ -107,13 +137,14 @@ class App extends React.Component {
 
     deleteRow = (e,id,name)=> {
       //console.log("DRL:",id, " name:",name, "- kaikki: ",this.state.persons)
-    
+      
+      let infomsg = `Henkilö '${name}' poistettu.`
+   
       if (window.confirm("Poistetaanko "+name+" ?")) {
 
       let others = this.state.persons.filter(person=>person.id!==id)
       //console.log ("Muut kamut: ", others)  
-
-
+ 
       personService
           .deletex(id)
           .then(response=> {
@@ -122,7 +153,30 @@ class App extends React.Component {
               persons: others
             })
           })
-      }
+          .catch(error => {
+            
+            this.setState({
+              error: `Henkilö '${name}' on jo valitettavasti poistettu palvelimelta`,
+              notes: this.state.persons.filter(n => n.id !== id),
+              info: null
+            })
+            setTimeout(() => {
+              infomsg = null
+              this.setState({error: null})
+            }, 5000)
+          }
+          )
+     
+          this.setState ({
+            info: infomsg
+            })
+            setTimeout(() => {
+            this.setState({info: null})
+          }, 5000) 
+          
+    }
+
+
     }
 
 
@@ -149,6 +203,9 @@ class App extends React.Component {
         <div>
           <Header text="Puhelinluettelo"/>
   
+          <Notification message={this.state.error} classname="error"/>
+          <Info message={this.state.info} classname="info"/>
+
           <SearchForm fu1={this.state.newFilter} 
             fu2={this.handleFilter}/>
 
