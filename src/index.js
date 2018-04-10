@@ -1,11 +1,14 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import axios from 'axios'
+//import axios from 'axios'
 
-import Person from './components/Person'
+//import Person from './components/Person'
 import SearchForm from './components/SearchForm'
+import AddForm from './components/AddForm'
+
 import Header from './components/Header'
 import personService from './services/persons'
+
 
 
 class App extends React.Component {
@@ -23,13 +26,6 @@ class App extends React.Component {
   
 
     componentDidMount() {
-      //console.log('will mount')
-      /*axios
-        .get('http://localhost:3001/persons')
-        .then(response => {
-          //console.log('data got')
-          this.setState({ persons: response.data })
-        })*/
       personService.getAll()
       .then(response=> {
         this.setState({persons: response.data})
@@ -40,29 +36,27 @@ class App extends React.Component {
 
     addPerson = (event) => {
       event.preventDefault()
-      
-      let newperson = {name: this.state.newName,
-        number: this.state.newPhone}
+    
+      const newperson = {
+        name: this.state.newName,
+        number: this.state.newPhone
+      }
       
       let temp = this.state.persons
     
       let foundList = temp.filter(person=>person.name.startsWith(this.state.newName)===true)
     
       if (foundList.length===0) {
-        temp.push(newperson)
-        //this.setState({persons: temp, newName:'', newPhone:''})
 
         personService
           .create(newperson)
           .then(response=> {
-            this.setState({persons: temp, newName:'', newPhone:''})  
+            this.setState ( {
+              persons: this.state.persons.concat(response.data),
+              newName:'',
+              newPhone:''
+            })
           })
-
-//        axios.post('http://localhost:3001/persons', newperson)
-//        .then(response => {
-//          console.log(response)
-//        })
-
       } else {
         alert("Name exists already!")
       }
@@ -94,6 +88,26 @@ class App extends React.Component {
       //
     }
 
+  
+
+    deleteRow = (e,id,name)=> {
+      //console.log("DRL:",id, " name:",name, "- kaikki: ",this.state.persons)
+      
+      let others = this.state.persons.filter(person=>person.id!==id)
+      //console.log ("Muut kamut: ", others)  
+
+
+      personService
+          .deletex(id)
+          .then(response=> {
+            //console.log("delli:", id, "AXX", response.data)
+            this.setState({
+              persons: others
+            })
+          })
+      }
+
+
     listAll = () => { 
       //console.log("LA:",this.state.persons)
       let list = this.state.persons
@@ -102,11 +116,12 @@ class App extends React.Component {
         list = this.state.persons.filter(person=>person.name.startsWith(this.state.filter)===true)
 
       } 
-      
       return (
         list.map(person =>
-        <Person key={person.name} name={person.name} phone={person.number}/>
-        )
+          <tr key={person.id}><td>{person.name}</td><td>{person.number}</td>
+          <td><button type="submit" name={person.name} onClick={(e)=>this.deleteRow(e,person.id,person.name)}>poista</button>
+          </td></tr>
+      )
       ) 
     }
 
@@ -119,8 +134,13 @@ class App extends React.Component {
           <SearchForm fu1={this.state.newFilter} 
             fu2={this.handleFilter}/>
 
-          <h2>Lisää uusi</h2>
-          <form onSubmit={this.addPerson}>
+          <Header text="Lisää uusi"/>
+          <AddForm fu1={this.addPerson} 
+            fu2={this.state.newName}
+            fu3={this.handleName}
+            fu4={this.state.newPhone}
+            fu5={this.handlePhone} />
+{/*          <form onSubmit={this.addPerson}>
           <div>
             nimi: <input value={this.state.newName} 
             onChange={this.handleName}/> <br/>
@@ -131,7 +151,7 @@ class App extends React.Component {
             <button type="submit" >lisää</button>
           </div>
           </form>
-
+      */}
           <Header text="Numerot"/>
           <table><tbody>
             {this.listAll()}

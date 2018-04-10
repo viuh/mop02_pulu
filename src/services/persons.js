@@ -13,4 +13,11 @@ const update = (id, newObject) => {
   return axios.put(`${baseUrl}/${id}`, newObject)
 }
 
-export default { getAll, create, update }
+const deletex = (id) => {
+    //console.log("DelService",id)
+    return axios.delete(`${baseUrl}/${id}`)
+
+}
+  
+
+export default { getAll, create, update,deletex }
