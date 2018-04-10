@@ -44,10 +44,10 @@ class App extends React.Component {
       
       let temp = this.state.persons
     
-      let foundList = temp.filter(person=>person.name.startsWith(this.state.newName)===true)
+      //let foundList = temp.filter(person=>person.name.startsWith(this.state.newName)===true)
+      let foundList = temp.filter(person=>person.name === this.state.newName)
     
       if (foundList.length===0) {
-
         personService
           .create(newperson)
           .then(response=> {
@@ -58,9 +58,24 @@ class App extends React.Component {
             })
           })
       } else {
-        alert("Name exists already!")
+        if (window.confirm(this.state.newName+" on jo luettelossa, korvataanko vanha numero uudella?")) {
+
+          foundList[0]["number"] =  this.state.newPhone
+          let others = this.state.persons.filter(person=>person.id!==foundList[0].id)
+
+          personService
+            .update(foundList[0].id, foundList[0])
+            .then(response=> {
+              //console.log("updated:",response.data)
+
+              this.setState ( {
+                persons: others.concat(response.data),
+                newName:'',
+                newPhone:''
+              })
+            })
+        }
       }
-    
     }
     
 
@@ -92,7 +107,9 @@ class App extends React.Component {
 
     deleteRow = (e,id,name)=> {
       //console.log("DRL:",id, " name:",name, "- kaikki: ",this.state.persons)
-      
+    
+      if (window.confirm("Poistetaanko "+name+" ?")) {
+
       let others = this.state.persons.filter(person=>person.id!==id)
       //console.log ("Muut kamut: ", others)  
 
@@ -106,6 +123,7 @@ class App extends React.Component {
             })
           })
       }
+    }
 
 
     listAll = () => { 
@@ -140,18 +158,7 @@ class App extends React.Component {
             fu3={this.handleName}
             fu4={this.state.newPhone}
             fu5={this.handlePhone} />
-{/*          <form onSubmit={this.addPerson}>
-          <div>
-            nimi: <input value={this.state.newName} 
-            onChange={this.handleName}/> <br/>
-            numero: <input value={this.state.newPhone} 
-            onChange={this.handlePhone} />
-          </div>
-          <div>
-            <button type="submit" >lisää</button>
-          </div>
-          </form>
-      */}
+
           <Header text="Numerot"/>
           <table><tbody>
             {this.listAll()}
